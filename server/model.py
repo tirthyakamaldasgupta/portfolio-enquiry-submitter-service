@@ -7,7 +7,7 @@ class EnquirySchema(BaseModel):
     first_name: str
     last_name: str
     email: str
-    company: Optional[str]
+    company: Optional[str] = None
     message: str
 
     class Config:
