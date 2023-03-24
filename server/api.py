@@ -2,11 +2,11 @@ from fastapi import FastAPI
 from .routes import portfolio_enquiry_submitter_router
 
 app = FastAPI(
-    title="Enquiry submitter service",
+    title="Portfolio enquiry submitter service",
     description="""
-    Enquiry submitter service
+    Portfolio enquiry submitter service
     """,
-    version="0.0.1",
+    version="0.0.0",
     contact={
         "name": "Tirthya Kamal Dasgupta",
         "email": "dasguptatirthyakamal@gmail.com"
