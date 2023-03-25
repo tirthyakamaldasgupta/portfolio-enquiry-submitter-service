@@ -1,3 +1,4 @@
+import logging
 from typing import Dict
 
 from fastapi import APIRouter, Body, HTTPException
@@ -19,13 +20,20 @@ async def submit_portfolio_enquiry(enquiry: EnquirySchema = Body(...)) -> Dict:
     status = enquiry_submitter.submit(body)
 
     if not status:
-        if not enquiry_submitter.error_type == EnquirySubmitter.INTERNAL_ERROR_CODENAME:
+        if enquiry_submitter.error_category == EnquirySubmitter.CLIENT_ERROR_CATEGORY_CODENAME:
             raise HTTPException(
                 status_code=enquiry_submitter.status_code,
-                detail=enquiry_submitter.error
+                detail=enquiry_submitter.detailed_error
             )
 
-        # For internal errors, log them here.
+        elif enquiry_submitter.error_category == EnquirySubmitter.INTERNAL_ERROR_CATEGORY_CODENAME:
+            if enquiry_submitter.LOG_SEVERITY_CRITICAL_CODENAME == "CRITICAL":
+                logging.critical(enquiry_submitter.detailed_error)
+
+            raise HTTPException(
+                status_code=enquiry_submitter.status_code,
+                detail="Internal Server Error"
+            )
 
     return {
         "message": enquiry_submitter.message
