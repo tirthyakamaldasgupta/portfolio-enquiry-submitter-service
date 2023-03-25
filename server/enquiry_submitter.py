@@ -10,6 +10,9 @@ from pyasn1.error import PyAsn1Error
 
 
 class EnquirySubmitter:
+    """
+    This class submits enquiries to the database.
+    """
     INTERNAL_ERROR_CATEGORY_CODENAME = "INTERNAL"
     CLIENT_ERROR_CATEGORY_CODENAME = "CLIENT"
 
@@ -25,6 +28,9 @@ class EnquirySubmitter:
     }
 
     def __init__(self):
+        """
+        The function is called when the class is instantiated. It sets the instance attributes to None.
+        """
         self.gs_private_key = None
         self.gs_client_email = None
         self.gs_token_uri = None
@@ -39,6 +45,12 @@ class EnquirySubmitter:
         self.status_code = None
 
     def _load_env_vars(self) -> Tuple[bool, Union[str, None]]:
+        """
+        It loads the environment variables from the `.env` file and stores them in the class instance
+        :return: A tuple of two values. The first is a boolean value indicating whether the environment
+        variables were loaded successfully. The second is either a string indicating the name of the
+        environment variable that was not found, or None if all environment variables were found.
+        """
         load_dotenv()
 
         for key in EnquirySubmitter.ENV_KEYS.keys():
@@ -72,6 +84,13 @@ class EnquirySubmitter:
         return True, None
 
     def submit(self, body: Dict) -> bool:
+        """
+        It takes a dictionary of enquiry data, and appends it to a Google Sheet
+        
+        :param body: The body of the request
+        :type body: Dict
+        :return: A boolean value.
+        """
         result, key = self._load_env_vars()
 
         if key and not result:
