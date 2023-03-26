@@ -35,7 +35,7 @@ if environment == "DEV":
 elif environment == "STAGING":
     allow_origins = ["*"]
 elif environment == "PROD":
-    allow_origins = ["https://portfolio-enquiry-submitter-service.vercel.app/"]
+    allow_origins = ["https://portfolio-alpha-eight-91.vercel.app/"]
 
 
 app.add_middleware(
