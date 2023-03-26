@@ -2,7 +2,7 @@ import logging
 
 from typing import Dict
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, HTTPException, Request
 
 from server.enquiry_submitter import EnquirySubmitter
 from server.model import EnquirySchema
@@ -17,12 +17,13 @@ enquiry_submitter = EnquirySubmitter()
     path="/",
     summary="Submit enquiries for portfolio"
 )
-async def submit_portfolio_enquiry(enquiry: EnquirySchema = Body(...)) -> Dict:
+async def submit_portfolio_enquiry(request: Request, enquiry: EnquirySchema = Body(...)) -> Dict:
     """
     "Submit enquiries for portfolio"
     
     The function is a POST request, and it takes in a JSON body
     
+    :param request:
     :param enquiry: EnquirySchema = Body(...)
     :type enquiry: EnquirySchema
     :return: A dictionary with a message key and a value of the message returned from the enquiry

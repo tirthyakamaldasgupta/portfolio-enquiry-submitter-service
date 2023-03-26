@@ -5,6 +5,7 @@ def main():
     enquiry_submitter = EnquirySubmitter()
 
     status = enquiry_submitter.submit({
+        "timestamp": 1679798817607,
         "first_name": "Clyde",
         "last_name": "Cronshaw",
         "email": "ccronshaw3@theguardian.com",

@@ -170,7 +170,7 @@ class EnquirySubmitter:
 
         for column_name in column_names:
             if column_name == "Timestamp":
-                data.append(datetime.datetime.now().strftime(self.timestamp_format))
+                data.append(datetime.datetime.fromtimestamp(body["timestamp"] / 1000).strftime(self.timestamp_format))
 
             else:
                 data.append(
