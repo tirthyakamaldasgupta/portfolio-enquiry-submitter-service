@@ -7,6 +7,7 @@ class EnquirySchema(BaseModel):
     """
     `EnquirySchema` is a `BaseModel` with `first_name`, `last_name`, `email`, `company` and `message` fields
     """
+    timestamp: int
     first_name: str
     last_name: str
     email: str

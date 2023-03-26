@@ -16,6 +16,7 @@ class EnquirySubmitter:
     INTERNAL_ERROR_CATEGORY_CODENAME = "INTERNAL"
     CLIENT_ERROR_CATEGORY_CODENAME = "CLIENT"
 
+    LOG_SEVERITY_INFO_CODENAME = "INFO"
     LOG_SEVERITY_CRITICAL_CODENAME = "CRITICAL"
 
     ENV_KEYS = {
@@ -25,6 +26,14 @@ class EnquirySubmitter:
         "SPREADSHEET_KEY": "SPREADSHEET_KEY",
         "WORKSHEET_TITLE": "WORKSHEET_TITLE",
         "TIMESTAMP_FORMAT": "TIMESTAMP_FORMAT"
+    }
+
+    COLUMN_SPEC = {
+        "First Name": "first_name",
+        "Last Name": "last_name",
+        "Email": "email",
+        "Company": "company",
+        "Message": "message"
     }
 
     def __init__(self):
@@ -39,6 +48,7 @@ class EnquirySubmitter:
         self.timestamp_format = None
 
         self.message = None
+        self.detailed_message = None
         self.detailed_error = None
         self.error_category = None
         self.log_severity = None
@@ -154,16 +164,26 @@ class EnquirySubmitter:
 
             return False
 
-        worksheet.append_row([
-            datetime.datetime.now().strftime(self.timestamp_format),
-            body["first_name"],
-            body["last_name"],
-            body["email"],
-            body["company"],
-            body["message"]
-        ])
+        column_names = worksheet.row_values(1)
+
+        data = []
+
+        for column_name in column_names:
+            if column_name == "Timestamp":
+                data.append(datetime.datetime.fromtimestamp(body["timestamp"] / 1000).strftime(self.timestamp_format))
+
+            else:
+                data.append(
+                    body[EnquirySubmitter.COLUMN_SPEC[column_name]]
+                    if column_name in EnquirySubmitter.COLUMN_SPEC.keys() and
+                    EnquirySubmitter.COLUMN_SPEC[column_name] in body.keys() else None
+                )
+
+        response = worksheet.append_row(data)
 
         self.message = "Enquiry added successfully"
+        self.detailed_message = response
+        self.log_severity = EnquirySubmitter.LOG_SEVERITY_INFO_CODENAME
         self.status_code = 200
 
         return True
