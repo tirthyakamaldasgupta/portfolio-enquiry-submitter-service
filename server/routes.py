@@ -7,6 +7,8 @@ from fastapi import APIRouter, Body, HTTPException
 from server.enquiry_submitter import EnquirySubmitter
 from server.model import EnquirySchema
 
+logging.basicConfig(level=logging.DEBUG)
+
 portfolio_enquiry_submitter_router = APIRouter()
 enquiry_submitter = EnquirySubmitter()
 
@@ -45,6 +47,8 @@ async def submit_portfolio_enquiry(enquiry: EnquirySchema = Body(...)) -> Dict:
                 status_code=enquiry_submitter.status_code,
                 detail="Internal Server Error"
             )
+
+    logging.info(enquiry_submitter.detailed_message)
 
     return {
         "message": enquiry_submitter.message

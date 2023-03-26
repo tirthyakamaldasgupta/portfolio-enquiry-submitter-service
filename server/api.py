@@ -6,7 +6,7 @@ app = FastAPI(
     description="""
     Portfolio enquiry submitter service
     """,
-    version="0.0.1",
+    version="0.0.2",
     contact={
         "name": "Tirthya Kamal Dasgupta",
         "email": "dasguptatirthyakamal@gmail.com"
