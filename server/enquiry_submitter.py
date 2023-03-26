@@ -29,6 +29,7 @@ class EnquirySubmitter:
     }
 
     COLUMN_SPEC = {
+        "Timestamp": "timestamp",
         "First Name": "first_name",
         "Last Name": "last_name",
         "Email": "email",
@@ -157,7 +158,7 @@ class EnquirySubmitter:
             worksheet = spreadsheet.worksheet(self.worksheet_title)
 
         except WorksheetNotFound as exc:
-            self.detailed_error = exc,
+            self.detailed_error = exc
             self.error_category = EnquirySubmitter.INTERNAL_ERROR_CATEGORY_CODENAME
             self.log_severity = EnquirySubmitter.LOG_SEVERITY_CRITICAL_CODENAME
             self.status_code = 500
@@ -166,18 +167,22 @@ class EnquirySubmitter:
 
         column_names = worksheet.row_values(1)
 
-        data = []
+        if not column_names == [key for key in EnquirySubmitter.COLUMN_SPEC.keys()]:
+            self.detailed_error = "Column specs doesn't match with sheet columns"
+            self.error_category = EnquirySubmitter.INTERNAL_ERROR_CATEGORY_CODENAME
+            self.log_severity = EnquirySubmitter.LOG_SEVERITY_CRITICAL_CODENAME
+            self.status_code = 500
 
-        for column_name in column_names:
-            if column_name == "Timestamp":
-                data.append(datetime.datetime.fromtimestamp(body["timestamp"] / 1000).strftime(self.timestamp_format))
+            return False
 
-            else:
-                data.append(
-                    body[EnquirySubmitter.COLUMN_SPEC[column_name]]
-                    if column_name in EnquirySubmitter.COLUMN_SPEC.keys() and
-                    EnquirySubmitter.COLUMN_SPEC[column_name] in body.keys() else None
-                )
+        data = [datetime.datetime.fromtimestamp(body["timestamp"] / 1000).strftime(self.timestamp_format)]
+
+        for index in range(1, len(column_names)):
+            data.append(
+                body[EnquirySubmitter.COLUMN_SPEC[column_names[index]]]
+                if column_names[index] in EnquirySubmitter.COLUMN_SPEC.keys() and
+                EnquirySubmitter.COLUMN_SPEC[column_names[index]] in body.keys() else None
+            )
 
         response = worksheet.append_row(data)
 
