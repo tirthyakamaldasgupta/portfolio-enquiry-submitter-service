@@ -4,6 +4,7 @@ import sys
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from .routes import portfolio_enquiry_submitter_router
 from dotenv import load_dotenv
 
@@ -21,7 +22,7 @@ app = FastAPI(
 
 load_dotenv()
 
-origins = []
+whitelisted_domains = []
 
 environment = os.environ.get("ENVIRONMENT")
 
@@ -31,17 +32,22 @@ if not environment:
     sys.exit()
 
 if environment == "DEV":
-    origins = ["*"]
+    whitelisted_domains = ["*"]
 elif environment == "STAGING":
-    origins = ["*"]
+    whitelisted_domains = ["*"]
 elif environment == "PROD":
-    origins = ["https://portfolio-alpha-eight-91.vercel.app/"]
+    whitelisted_domains = ["https://portfolio-alpha-eight-91.vercel.app/"]
 
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=whitelisted_domains,
     allow_methods=["OPTIONS", "POST"]
+)
+
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=whitelisted_domains
 )
 
 app.include_router(
