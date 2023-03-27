@@ -31,17 +31,17 @@ if not environment:
     sys.exit()
 
 if environment == "DEV":
-    allow_origins = ["*"],
+    origins = ["*"]
 elif environment == "STAGING":
-    allow_origins = ["*"]
+    origins = ["*"]
 elif environment == "PROD":
-    allow_origins = ["https://portfolio-alpha-eight-91.vercel.app/"]
+    origins = ["https://portfolio-alpha-eight-91.vercel.app/"]
 
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_methods=["POST"],
+    allow_methods=["OPTIONS", "POST"]
 )
 
 app.include_router(
