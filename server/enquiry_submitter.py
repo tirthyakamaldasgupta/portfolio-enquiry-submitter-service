@@ -93,8 +93,6 @@ class EnquirySubmitter:
             EnquirySubmitter.ENV_KEYS["TIMESTAMP_FORMAT"]
         )
 
-        logging.critical(os.environ.get("ENVIRONMENT"))
-
         return True, None
 
     def submit(self, body: Dict) -> bool:
