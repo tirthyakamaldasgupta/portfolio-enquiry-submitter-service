@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 from typing import Tuple, Dict, Union
 
@@ -91,6 +92,8 @@ class EnquirySubmitter:
         self.timestamp_format = os.environ.get(
             EnquirySubmitter.ENV_KEYS["TIMESTAMP_FORMAT"]
         )
+
+        logging.critical(os.environ.get("ENVIRONMENT"))
 
         return True, None
 
