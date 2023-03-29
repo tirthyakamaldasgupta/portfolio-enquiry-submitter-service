@@ -5,8 +5,11 @@ import sys
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+
+from .env_vars_loader import EnvVarsLoader, VarNotFoundException
 from .routes import portfolio_enquiry_submitter_router
-from dotenv import load_dotenv
+
+logging.basicConfig(level=logging.DEBUG)
 
 app = FastAPI(
     title="Portfolio enquiry submitter service",
@@ -20,16 +23,20 @@ app = FastAPI(
     }
 )
 
-load_dotenv()
+try:
+    env_vars = EnvVarsLoader(
+        [
+            "ENVIRONMENT"
+        ]
+    ).get_env_vars()
 
-whitelisted_domains = []
-
-environment = os.environ.get("ENVIRONMENT")
-
-if not environment:
-    logging.critical("Deployment environment not found")
+    environment = env_vars["ENVIRONMENT"]
+except VarNotFoundException as exc:
+    logging.critical(exc)
 
     sys.exit()
+
+whitelisted_domains = []
 
 if environment == "DEV":
     whitelisted_domains = ["*"]

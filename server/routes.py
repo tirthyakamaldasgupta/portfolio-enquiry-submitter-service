@@ -1,16 +1,40 @@
 import logging
+import sys
 
 from typing import Dict
 
 from fastapi import APIRouter, Body, HTTPException, Request
 
 from server.enquiry_submitter import EnquirySubmitter
+from server.env_vars_loader import EnvVarsLoader, VarNotFoundException
 from server.model import EnquirySchema
 
-logging.basicConfig(level=logging.DEBUG)
+try:
+    env_vars = EnvVarsLoader(
+        [
+            "GS_PRIVATE_KEY",
+            "GS_CLIENT_EMAIL",
+            "GS_TOKEN_URI",
+            "SPREADSHEET_KEY",
+            "WORKSHEET_TITLE",
+            "TIMESTAMP_FORMAT"
+        ]
+    ).get_env_vars()
+except VarNotFoundException as exc:
+    logging.critical(exc)
+
+    sys.exit()
 
 portfolio_enquiry_submitter_router = APIRouter()
-enquiry_submitter = EnquirySubmitter()
+
+enquiry_submitter = EnquirySubmitter(
+    gs_private_key=env_vars["GS_PRIVATE_KEY"],
+    gs_client_email=env_vars["GS_CLIENT_EMAIL"],
+    gs_token_uri=env_vars["GS_TOKEN_URI"],
+    spreadsheet_key=env_vars["SPREADSHEET_KEY"],
+    worksheet_title=env_vars["WORKSHEET_TITLE"],
+    timestamp_format=env_vars["TIMESTAMP_FORMAT"],
+)
 
 
 @portfolio_enquiry_submitter_router.post(

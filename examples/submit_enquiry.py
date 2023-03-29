@@ -2,7 +2,14 @@ from server.enquiry_submitter import EnquirySubmitter
 
 
 def main():
-    enquiry_submitter = EnquirySubmitter()
+    enquiry_submitter = EnquirySubmitter(
+        gs_private_key="<your_gs_private_key>",
+        gs_client_email="<your_gs_client_email>",
+        gs_token_uri="<your_gs_token_uri>",
+        spreadsheet_key="<your_spreadsheet_key>",
+        worksheet_title="<your_worksheet_title>",
+        timestamp_format="<your_timestamp_format>",
+    )
 
     status = enquiry_submitter.submit({
         "timestamp": 1679798817607,
