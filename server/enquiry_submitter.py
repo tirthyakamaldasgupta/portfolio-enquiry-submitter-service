@@ -5,14 +5,14 @@ from typing import Tuple, Dict, Union
 
 import gspread
 from dotenv import load_dotenv
-from google.auth.exceptions import RefreshError, TransportError
+from google.auth.exceptions import RefreshError, TransportError, MalformedError
 from gspread.exceptions import APIError, WorksheetNotFound
 from pyasn1.error import PyAsn1Error
 
 
 class EnquirySubmitter:
     """
-    This class submits enquiries to the database.
+    This class submits enquiries to a Google Sheet.
     """
     INTERNAL_ERROR_CATEGORY_CODENAME = "INTERNAL"
     CLIENT_ERROR_CATEGORY_CODENAME = "CLIENT"
@@ -38,9 +38,6 @@ class EnquirySubmitter:
             worksheet_title: str,
             timestamp_format: str,
     ):
-        """
-        The function is called when the class is instantiated. It sets the instance attributes to None.
-        """
         self.gs_private_key = gs_private_key
         self.gs_client_email = gs_client_email
         self.gs_token_uri = gs_token_uri
@@ -71,6 +68,14 @@ class EnquirySubmitter:
             })
 
         except PyAsn1Error as exc:
+            self.detailed_error = exc
+            self.error_category = EnquirySubmitter.INTERNAL_ERROR_CATEGORY_CODENAME
+            self.log_severity = EnquirySubmitter.LOG_SEVERITY_CRITICAL_CODENAME
+            self.status_code = 500
+
+            return False
+
+        except MalformedError as exc:
             self.detailed_error = exc
             self.error_category = EnquirySubmitter.INTERNAL_ERROR_CATEGORY_CODENAME
             self.log_severity = EnquirySubmitter.LOG_SEVERITY_CRITICAL_CODENAME

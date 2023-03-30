@@ -1,5 +1,4 @@
 import logging
-import os
 import sys
 
 from fastapi import FastAPI
@@ -9,7 +8,13 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from .env_vars_loader import EnvVarsLoader, VarNotFoundException
 from .routes import portfolio_enquiry_submitter_router
 
+# Without configuring, the default level is WARNING.
+# But logging is needed for every kind of operation like debugging, getting information etc.
+# Configuring the log level and setting it to DEBUG
+
 logging.basicConfig(level=logging.DEBUG)
+
+# Creating an instance of the FastAPI app
 
 app = FastAPI(
     title="Portfolio enquiry submitter service",
@@ -24,6 +29,10 @@ app = FastAPI(
 )
 
 try:
+    # Loading the environment variable "ENVIRONMENT"
+    # If the variable is missing or its value doesn't match,
+    # the server will not start
+
     env_vars = EnvVarsLoader(
         [
             "ENVIRONMENT"
@@ -31,20 +40,28 @@ try:
     ).get_env_vars()
 
     environment = env_vars["ENVIRONMENT"]
+
+    whitelisted_domains = []
+
+    if environment == "DEV":
+        whitelisted_domains = ["*"]
+
+    elif environment == "STAGING":
+        whitelisted_domains = ["*"]
+
+    elif environment == "PROD":
+        whitelisted_domains = ["https://portfolio-alpha-eight-91.vercel.app/"]
+
+    else:
+        logging.critical("Invalid value for env var 'ENVIRONMENT'")
+
+        sys.exit()
 except VarNotFoundException as exc:
     logging.critical(exc)
 
     sys.exit()
 
-whitelisted_domains = []
-
-if environment == "DEV":
-    whitelisted_domains = ["*"]
-elif environment == "STAGING":
-    whitelisted_domains = ["*"]
-elif environment == "PROD":
-    whitelisted_domains = ["https://portfolio-alpha-eight-91.vercel.app/"]
-
+# Allowing specific origins and methods for sending cross-origin requests
 
 app.add_middleware(
     CORSMiddleware,
@@ -52,10 +69,16 @@ app.add_middleware(
     allow_methods=["OPTIONS", "POST"]
 )
 
+# Allowing specific domains to access this service,
+# as mostly this will be an internal service which the portfolio client can access.
+# It will not be accessible publicly.
+
 app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=whitelisted_domains
 )
+
+# Attaching the routes specified in "routes.py"
 
 app.include_router(
     portfolio_enquiry_submitter_router,
