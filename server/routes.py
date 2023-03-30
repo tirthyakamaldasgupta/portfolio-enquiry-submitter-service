@@ -28,7 +28,7 @@ except VarNotFoundException as exc:
 portfolio_enquiry_submitter_router = APIRouter()
 
 enquiry_submitter = EnquirySubmitter(
-    gs_private_key=env_vars["GS_PRIVATE_KEY"],
+    gs_private_key=env_vars["GS_PRIVATE_KEY"].replace("\\n", "\n"),
     gs_client_email=env_vars["GS_CLIENT_EMAIL"],
     gs_token_uri=env_vars["GS_TOKEN_URI"],
     spreadsheet_key=env_vars["SPREADSHEET_KEY"],
