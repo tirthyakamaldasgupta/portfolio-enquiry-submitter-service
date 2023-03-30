@@ -12,10 +12,6 @@ COPY ./requirements.txt /app/requirements.txt
 
 # Creating and activating virtual environment, then installing dependencies
 
-#RUN python3 -m venv venv && \
-#    /bin/bash -c "source venv/bin/activate && \
-#    pip install --no-cache-dir --upgrade -r /app/requirements.txt"
-
 RUN python3 -m venv venv && \
     /bin/bash -c ". venv/bin/activate && \
     pip install --no-cache-dir --upgrade -r /app/requirements.txt"
