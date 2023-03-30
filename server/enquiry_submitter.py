@@ -5,29 +5,20 @@ from typing import Tuple, Dict, Union
 
 import gspread
 from dotenv import load_dotenv
-from google.auth.exceptions import RefreshError, TransportError
+from google.auth.exceptions import RefreshError, TransportError, MalformedError
 from gspread.exceptions import APIError, WorksheetNotFound
 from pyasn1.error import PyAsn1Error
 
 
 class EnquirySubmitter:
     """
-    This class submits enquiries to the database.
+    This class submits enquiries to a Google Sheet.
     """
     INTERNAL_ERROR_CATEGORY_CODENAME = "INTERNAL"
     CLIENT_ERROR_CATEGORY_CODENAME = "CLIENT"
 
     LOG_SEVERITY_INFO_CODENAME = "INFO"
     LOG_SEVERITY_CRITICAL_CODENAME = "CRITICAL"
-
-    ENV_KEYS = {
-        "GS_PRIVATE_KEY": "GS_PRIVATE_KEY",
-        "GS_CLIENT_EMAIL": "GS_CLIENT_EMAIL",
-        "GS_TOKEN_URI": "GS_TOKEN_URI",
-        "SPREADSHEET_KEY": "SPREADSHEET_KEY",
-        "WORKSHEET_TITLE": "WORKSHEET_TITLE",
-        "TIMESTAMP_FORMAT": "TIMESTAMP_FORMAT"
-    }
 
     COLUMN_SPEC = {
         "Timestamp": "timestamp",
@@ -38,16 +29,21 @@ class EnquirySubmitter:
         "Message": "message"
     }
 
-    def __init__(self):
-        """
-        The function is called when the class is instantiated. It sets the instance attributes to None.
-        """
-        self.gs_private_key = None
-        self.gs_client_email = None
-        self.gs_token_uri = None
-        self.spreadsheet_key = None
-        self.worksheet_title = None
-        self.timestamp_format = None
+    def __init__(
+            self,
+            gs_private_key: str,
+            gs_client_email: str,
+            gs_token_uri: str,
+            spreadsheet_key: str,
+            worksheet_title: str,
+            timestamp_format: str,
+    ):
+        self.gs_private_key = gs_private_key
+        self.gs_client_email = gs_client_email
+        self.gs_token_uri = gs_token_uri
+        self.spreadsheet_key = spreadsheet_key
+        self.worksheet_title = worksheet_title
+        self.timestamp_format = timestamp_format
 
         self.message = None
         self.detailed_message = None
@@ -55,45 +51,6 @@ class EnquirySubmitter:
         self.error_category = None
         self.log_severity = None
         self.status_code = None
-
-    def _load_env_vars(self) -> Tuple[bool, Union[str, None]]:
-        """
-        It loads the environment variables from the `.env` file and stores them in the class instance
-        :return: A tuple of two values. The first is a boolean value indicating whether the environment
-        variables were loaded successfully. The second is either a string indicating the name of the
-        environment variable that was not found, or None if all environment variables were found.
-        """
-        load_dotenv()
-
-        for key in EnquirySubmitter.ENV_KEYS.keys():
-            if key not in os.environ:
-                return False, key
-
-        self.gs_private_key = os.environ.get(
-            EnquirySubmitter.ENV_KEYS["GS_PRIVATE_KEY"]
-        )
-
-        self.gs_client_email = os.environ.get(
-            EnquirySubmitter.ENV_KEYS["GS_CLIENT_EMAIL"]
-        )
-
-        self.gs_token_uri = os.environ.get(
-            EnquirySubmitter.ENV_KEYS["GS_TOKEN_URI"]
-        )
-
-        self.spreadsheet_key = os.environ.get(
-            EnquirySubmitter.ENV_KEYS["SPREADSHEET_KEY"]
-        )
-
-        self.worksheet_title = os.environ.get(
-            EnquirySubmitter.ENV_KEYS["WORKSHEET_TITLE"]
-        )
-
-        self.timestamp_format = os.environ.get(
-            EnquirySubmitter.ENV_KEYS["TIMESTAMP_FORMAT"]
-        )
-
-        return True, None
 
     def submit(self, body: Dict) -> bool:
         """
@@ -103,16 +60,6 @@ class EnquirySubmitter:
         :type body: Dict
         :return: A boolean value.
         """
-        result, key = self._load_env_vars()
-
-        if key and not result:
-            self.detailed_error = f"Key \"{key}\" absent or malformed in environment variables"
-            self.error_category = EnquirySubmitter.INTERNAL_ERROR_CATEGORY_CODENAME
-            self.log_severity = EnquirySubmitter.LOG_SEVERITY_CRITICAL_CODENAME
-            self.status_code = 500
-
-            return False
-
         try:
             service_account = gspread.service_account_from_dict({
                 "private_key": self.gs_private_key,
@@ -121,6 +68,14 @@ class EnquirySubmitter:
             })
 
         except PyAsn1Error as exc:
+            self.detailed_error = exc
+            self.error_category = EnquirySubmitter.INTERNAL_ERROR_CATEGORY_CODENAME
+            self.log_severity = EnquirySubmitter.LOG_SEVERITY_CRITICAL_CODENAME
+            self.status_code = 500
+
+            return False
+
+        except MalformedError as exc:
             self.detailed_error = exc
             self.error_category = EnquirySubmitter.INTERNAL_ERROR_CATEGORY_CODENAME
             self.log_severity = EnquirySubmitter.LOG_SEVERITY_CRITICAL_CODENAME
