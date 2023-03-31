@@ -1,6 +1,6 @@
 # Pulling the base image
 
-FROM python:3.11
+FROM python:3.11-slim-bullseye
 
 # Setting root directory of the application
 

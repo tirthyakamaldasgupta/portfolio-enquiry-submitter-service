@@ -61,7 +61,7 @@ except VarNotFoundException as exc:
 
     sys.exit()
 
-# Allowing specific origins and methods for sending cross-origin requests
+# Allowing specific origins,methods and headers for sending cross-origin requests
 
 app.add_middleware(
     CORSMiddleware,
