@@ -66,7 +66,7 @@ except VarNotFoundException as exc:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=whitelisted_domains,
-    allow_methods=["OPTIONS", "POST"]
+    allow_methods=["*"]
 )
 
 # Allowing specific domains to access this service,
