@@ -50,7 +50,7 @@ try:
         whitelisted_domains = ["*"]
 
     elif environment == "PROD":
-        whitelisted_domains = ["https://portfolio-alpha-eight-91.vercel.app/"]
+        whitelisted_domains = ["*"]
 
     else:
         logging.critical("Invalid value for env var 'ENVIRONMENT'")
