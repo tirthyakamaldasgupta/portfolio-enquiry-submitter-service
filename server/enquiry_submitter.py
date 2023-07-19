@@ -120,8 +120,18 @@ class EnquirySubmitter:
             self.status_code = 500
 
             return False
-
+        
         column_names = worksheet.row_values(1)
+
+        if not "Responded" in column_names:
+            self.detailed_error = "No column named \"Responded\" exist in the sheet"
+            self.error_category = EnquirySubmitter.INTERNAL_ERROR_CATEGORY_CODENAME
+            self.log_severity = EnquirySubmitter.LOG_SEVERITY_CRITICAL_CODENAME
+            self.status_code = 500
+
+            return False
+        
+        column_names.remove("Responded")
 
         if not column_names == [key for key in EnquirySubmitter.COLUMN_SPEC.keys()]:
             self.detailed_error = "Column specs doesn't match with sheet columns"
@@ -139,6 +149,8 @@ class EnquirySubmitter:
                 if column_names[index] in EnquirySubmitter.COLUMN_SPEC.keys() and
                 EnquirySubmitter.COLUMN_SPEC[column_names[index]] in body.keys() else None
             )
+
+        data.append(False)
 
         response = worksheet.append_row(data)
 
