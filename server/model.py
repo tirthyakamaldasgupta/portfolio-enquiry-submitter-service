@@ -5,11 +5,12 @@ from pydantic import BaseModel
 
 class EnquirySchema(BaseModel):
     """
-    `EnquirySchema` is a `BaseModel` with `first_name`, `last_name`, `email`, `company` and `message` fields
+    `EnquirySchema` is a `BaseModel` with `firstName`, `middleName`, `lastName`, `email`, `company` and `message` fields
     """
-    timestamp: int
-    first_name: str
-    last_name: str
+    timeStamp: int
+    firstName: str
+    middleName: Optional[str] = None
+    lastName: str
     email: str
     company: Optional[str] = None
     message: str
@@ -17,8 +18,9 @@ class EnquirySchema(BaseModel):
     class Config:
         schema_extra = {
             "example": {
-                "first_name": "Clyde",
-                "last_name": "Cronshaw",
+                "firstName": "Clyde",
+                "middleName": "Doe",
+                "lastName": "Cronshaw",
                 "email": "ccronshaw3@theguardian.com",
                 "company": "Topicblab",
                 "message": "Nulla tellus. In sagittis dui vel nisl. Duis ac nibh."

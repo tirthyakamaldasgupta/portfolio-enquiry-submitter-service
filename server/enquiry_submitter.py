@@ -21,9 +21,10 @@ class EnquirySubmitter:
     LOG_SEVERITY_CRITICAL_CODENAME = "CRITICAL"
 
     COLUMN_SPEC = {
-        "Timestamp": "timestamp",
-        "First Name": "first_name",
-        "Last Name": "last_name",
+        "Timestamp": "timeStamp",
+        "First Name": "firstName",
+        "Middle Name": "middleName",
+        "Last Name": "lastName",
         "Email": "email",
         "Company": "company",
         "Message": "message"
@@ -141,7 +142,7 @@ class EnquirySubmitter:
 
             return False
 
-        data = [datetime.datetime.fromtimestamp(body["timestamp"] / 1000).strftime(self.timestamp_format)]
+        data = [datetime.datetime.fromtimestamp(body["timeStamp"] / 1000).strftime(self.timestamp_format)]
 
         for index in range(1, len(column_names)):
             data.append(
